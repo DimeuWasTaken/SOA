@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Storage {
+    id              Int             @id @default(autoincrement())
+    createdAt       DateTime        @default(now())
+    updatedAt       DateTime        @updatedAt
+
+    name            String
+    address         String
+
+    units           Unit[]
+
+    @@map("storages")
+}
+
+model Unit {
+    id              Int             @id @default(autoincrement())
+    createdAt       DateTime        @default(now())
+    updatedAt       DateTime        @updatedAt
+
+    weightCapacity  Int
+
+    storage         Storage         @relation(fields: [storageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    storageId       Int             @unique
+
+    userId          Int?            @unique
+
+    items           Item[]
+
+    @@map("units")
+}
+
+model Item {
+    id              Int             @id @default(autoincrement())
+    createdAt       DateTime        @default(now())
+    updatedAt       DateTime        @updatedAt
+
+    name            String
+    weight          Int
+
+    unit            Unit            @relation(fields: [unitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    unitId          Int             @unique
+
+    @@map("items")
+}
