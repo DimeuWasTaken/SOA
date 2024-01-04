@@ -235,7 +235,7 @@ const common_1 = __webpack_require__(6);
 const config_1 = __webpack_require__(7);
 const auth_module_1 = __webpack_require__(8);
 const profile_module_1 = __webpack_require__(24);
-const prisma_module_1 = __webpack_require__(30);
+const prisma_module_1 = __webpack_require__(33);
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -714,7 +714,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProfileModule = void 0;
 const common_1 = __webpack_require__(6);
 const profile_controller_1 = __webpack_require__(25);
-const profile_service_1 = __webpack_require__(31);
+const profile_service_1 = __webpack_require__(30);
 let ProfileModule = class ProfileModule {
 };
 exports.ProfileModule = ProfileModule;
@@ -750,8 +750,8 @@ exports.ProfileController = void 0;
 const common_1 = __webpack_require__(6);
 const guard_1 = __webpack_require__(26);
 const decorator_1 = __webpack_require__(28);
-const profile_service_1 = __webpack_require__(31);
-const dto_1 = __webpack_require__(32);
+const profile_service_1 = __webpack_require__(30);
+const dto_1 = __webpack_require__(31);
 let ProfileController = class ProfileController {
     constructor(profileService) {
         this.profileService = profileService;
@@ -759,28 +759,39 @@ let ProfileController = class ProfileController {
     async getProfile(id) {
         return this.profileService.getProfile(id);
     }
-    async updateProfile(dto) {
-        return this.profileService.updateProfile(dto);
+    async updateProfile(id, dto) {
+        return this.profileService.updateProfile(id, dto);
+    }
+    async deleteProfile(id) {
+        return this.profileService.deleteProfile(id);
     }
 };
 exports.ProfileController = ProfileController;
 __decorate([
-    (0, common_1.Get)('me'),
+    (0, common_1.Get)('getprofile/:id'),
     __param(0, (0, decorator_1.GetProfile)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], ProfileController.prototype, "getProfile", null);
 __decorate([
-    (0, common_1.Put)('edit'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Put)('editprofile/:id'),
+    __param(0, (0, decorator_1.GetProfile)('id')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_b = typeof dto_1.ProfileDto !== "undefined" && dto_1.ProfileDto) === "function" ? _b : Object]),
+    __metadata("design:paramtypes", [Number, typeof (_b = typeof dto_1.ProfileDto !== "undefined" && dto_1.ProfileDto) === "function" ? _b : Object]),
     __metadata("design:returntype", Promise)
 ], ProfileController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_1.Delete)('deleteprofile/:id'),
+    __param(0, (0, decorator_1.GetProfile)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ProfileController.prototype, "deleteProfile", null);
 exports.ProfileController = ProfileController = __decorate([
     (0, common_1.UseGuards)(guard_1.JwtGuard),
-    (0, common_1.Controller)('profile'),
+    (0, common_1.Controller)('profiles'),
     __metadata("design:paramtypes", [typeof (_a = typeof profile_service_1.ProfileService !== "undefined" && profile_service_1.ProfileService) === "function" ? _a : Object])
 ], ProfileController);
 
@@ -879,34 +890,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.PrismaModule = void 0;
-const common_1 = __webpack_require__(6);
-const prisma_service_1 = __webpack_require__(11);
-let PrismaModule = class PrismaModule {
-};
-exports.PrismaModule = PrismaModule;
-exports.PrismaModule = PrismaModule = __decorate([
-    (0, common_1.Global)(),
-    (0, common_1.Module)({
-        providers: [prisma_service_1.PrismaService],
-        exports: [prisma_service_1.PrismaService]
-    })
-], PrismaModule);
-
-
-/***/ }),
-/* 31 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
@@ -919,22 +902,18 @@ let ProfileService = class ProfileService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async getAllProfiles() {
-        const profiles = await this.prisma.profile.findMany();
-        return profiles.map(profile => {
-            delete profile.password;
-            return profile;
-        });
-    }
     async getProfile(id) {
         const profile = await this.prisma.profile.findUnique({ where: { id } });
         delete profile.password;
         return profile;
     }
-    async updateProfile(dto) {
-        const profile = await this.prisma.profile.update({ where: { email: dto.email }, data: dto });
+    async updateProfile(id, dto) {
+        const profile = await this.prisma.profile.update({ where: { id }, data: dto });
         delete profile.password;
         return profile;
+    }
+    async deleteProfile(id) {
+        return await this.prisma.profile.delete({ where: { id } });
     }
 };
 exports.ProfileService = ProfileService;
@@ -945,7 +924,7 @@ exports.ProfileService = ProfileService = __decorate([
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -965,11 +944,11 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(33), exports);
+__exportStar(__webpack_require__(32), exports);
 
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -1009,6 +988,34 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], ProfileDto.prototype, "lastName", void 0);
+
+
+/***/ }),
+/* 33 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.PrismaModule = void 0;
+const common_1 = __webpack_require__(6);
+const prisma_service_1 = __webpack_require__(11);
+let PrismaModule = class PrismaModule {
+};
+exports.PrismaModule = PrismaModule;
+exports.PrismaModule = PrismaModule = __decorate([
+    (0, common_1.Global)(),
+    (0, common_1.Module)({
+        providers: [prisma_service_1.PrismaService],
+        exports: [prisma_service_1.PrismaService]
+    })
+], PrismaModule);
 
 
 /***/ })
@@ -1073,7 +1080,7 @@ __decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("9440965e9f9b48a869bf")
+/******/ 		__webpack_require__.h = () => ("d95778c47952c28d9c18")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */

@@ -7,8 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "prisma:dev:deploy": "prisma migrate deploy",
-    "auth:dev:rm": "docker compose rm auth -s -f -v",
-    "auth:dev:up": "docker compose up auth -d",
+    "auth:dev:rm": "docker compose rm authdb -s -f -v",
+    "auth:dev:up": "docker compose up authdb -d",
     "auth:dev:restart": "npm run auth:dev:rm && npm run auth:dev:up && timeout /t 2 && npm run prisma:dev:deploy",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
