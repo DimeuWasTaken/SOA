@@ -9,7 +9,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
-    "setup": "docker-compose down && docker-compose up -d && npx prisma migrate deploy",
+    "setup": "docker-compose down -v && docker-compose up -d && npx prisma migrate deploy",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -19,7 +19,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/storage-app/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/storage-app/batest/jest-e2e.json"
   },
   "dependencies": {
     "@angular/cli": "^17.1.2",

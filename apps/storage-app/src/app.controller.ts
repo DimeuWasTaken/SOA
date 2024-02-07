@@ -4,9 +4,9 @@ import { AuthDto, EmployeeDto, ItemDto, LoginDto, StorageDto, UnitDto } from 'dt
 
 @Controller()
 export class AppController {
-    access_token: string;
+    private access_token: string = "";
     constructor(private readonly appService: AppService) {
-        this.access_token = ""
+        this.access_token = "";
     }
 
     @Post('signup')
@@ -32,6 +32,7 @@ export class AppController {
     @Get('getprofile/:id')
     async getProfile(@Param('id') id: number){
         const t = await this.appService.getProfile(id, this.access_token);
+        
         return t;
     }
 

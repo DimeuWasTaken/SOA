@@ -44,6 +44,9 @@ export class EmployeeService {
 
     async editEmployee(id: number, dto: EmployeeDto): Promise<Employee> {
         id = parseInt(id.toString());
+        if (dto.managerId) {
+            dto.managerId = parseInt(dto.managerId.toString());
+        }
         const employee = await this.prisma.employee.update({
             where: { id },
             data: {

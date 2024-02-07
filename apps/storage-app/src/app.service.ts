@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientKafka, ClientProxy } from '@nestjs/microservices';
 import { AuthDto, EmployeeDto, ItemDto, LoginDto, StorageDto, UnitDto } from 'dto';
 
 @Injectable()
@@ -7,6 +7,8 @@ export class AppService {
     constructor(
         @Inject('AUTH') private readonly authClient: ClientProxy,
         @Inject('EMPLOYEE') private readonly employeeClient: ClientProxy,
+        /* @Inject('STORAGE') private readonly storageClient: ClientKafka, */
+
         @Inject('STORAGE') private readonly storageClient: ClientProxy,
     ) {}
 
